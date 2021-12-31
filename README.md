@@ -58,7 +58,7 @@ You can modify these in the settings.json file.
 }
 ```
 
-> **_Note:_**  Currently the only way to use an icon is to use the svg-path. Get it here: https://materialdesignicons.com/
+> **_Note:_**  To change the icon use a SVG-path. Get it here: https://materialdesignicons.com/
 
 #  :whale: Docker (todo :hammer:) 
 
