@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import settings from './settings.json';
-import { InputAdornment,TextField, makeStyles } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import { InputAdornment,TextField, makeStyles, SvgIcon, Chip } from '@material-ui/core';
+
 
 const hideDelay = settings.searchSettings.styles.hideAnimationDelaySeconds + "s";
 const hideDuration = settings.searchSettings.styles.hideAnimationDurationSeconds+ "s";
@@ -10,11 +10,16 @@ const animationStart = settings.searchSettings.styles.opacityAtAnimationStart;
 const animationEnd = settings.searchSettings.styles.opacityAtAnimationEnd;
 const textColor = settings.searchSettings.styles.textColor;
 const backgroundColor = settings.searchSettings.styles.backgroundColor;
+const labelBackgroundColor = settings.searchSettings.styles.labelBackgroundColor;
+const keepDefaultIcon = settings.searchSettings.keepDefaultIcon;
 
-
+let searchEngineOverriden = false;
+let showSearchBox = false;
 
 function CustomSearch() {
     const [searchQuery, setSearchQuery] = useState("");   
+    const [searchEngine, setSearchEngine] = useState(settings.searchSettings.defaultSearchEngine);
+    
     const useStyles = makeStyles({
         root: {
           "& .MuiPaper-root": {
@@ -28,10 +33,12 @@ function CustomSearch() {
           color: textColor+"!important",
           alignContent: "center center",
         },
+        label:{
+            backgroundColor:labelBackgroundColor,
+        },
         search: {   
           padding: "4px",
-          backgroundColor: backgroundColor,    
-          minHeight: "10%",
+          backgroundColor: backgroundColor,              
           opacity:animationStart,
           ['@media (min-width:'+minWidth+')']: 
             {
@@ -54,7 +61,7 @@ function CustomSearch() {
           },    
         },
         "@keyframes loadAnimation": {        
-            "to": searchQuery.length !== 0 ? {
+            "to": showSearchBox ? {
                 transitionDelay: hideDelay, 
                 transition: "opacity 2s",
                 opacity: animationStart 
@@ -75,45 +82,52 @@ function CustomSearch() {
           }    
     });
 
+    // generate CSS
     const classes = useStyles();
 
+    // capture search input and handle search engine override
     function handleChange (event) {
-        setSearchQuery(event.target.value)
-      }
-    
-    
-    function handleKeyPress (event) {
-        if(event.key === 'Enter'){
-    
-        // search (not a full URL with http/https)
-        if(!searchQuery.startsWith('http://') && !searchQuery.startsWith('https://'))
+
+        const textInput = event.target.value;
+
+        // keep the search box shown if once you override the default search engine, otherwise hide it if search queery is deleted
+        showSearchBox = searchEngineOverriden ? true : textInput.length > 0;
+
+        setSearchQuery(textInput)
+
+        // detecting custom search engine override       
+        if(textInput.length > 1 && textInput[1] === ' ')
         {
-            // use default search engine if not overriden
-            var searchEngine = settings.searchSettings.defaultSearchEngine;
-            var searchQueryNew = searchQuery;
-            console.log(settings.searchSettings)
-            // overriding the default search engine        
-            if(searchQuery.length > 3 && searchQuery[1] === ' ')
-            {
             settings.searchSettings.searchEngines.map(function(engine){              
-                if(engine.key === searchQuery[0].toLowerCase() )
-                {
-                    searchEngine = engine.url;
-                    searchQueryNew = searchQuery.slice(2);
-                }                
-                return null;
+                    if(engine.key === textInput[0].toLowerCase() )
+                    {
+                        searchEngineOverriden = true;
+                        event.target.value = textInput.slice(2);
+                        setSearchEngine(engine); 
+                        console.log(searchEngine.iconSVGPath)
+                    }                
+                    return null;
                 }              
             )         
-            }
-            // execute search
-            document.location.href = searchEngine + searchQueryNew;
+        }
+    }   
+
+    function handleOnKeyDown (event) {
+        // detect backspace on empty search query
         
+    }
+    
+    function handleKeyPress (event) {        
+        if(event.key === 'Enter'){
+            // execute search           
+            if(searchQuery.startsWith('http://') || searchQuery.startsWith('https://')) // searchquery is full URL so just redirect (a full URL with http/https))
+            {
+                document.location.href = searchQuery;
+            } else if(searchEngine) // search engine
+            {                
+                document.location.href = searchEngine.url + searchQuery;
+            }
         }
-        // searchquery is full URL so just redirect (a full URL with http/https))
-        else{
-            document.location.href = searchQuery;
-        }
-      }
     }
         
 
@@ -124,11 +138,24 @@ function CustomSearch() {
                 placeholder="Search"
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
+                onKeyDown={handleOnKeyDown}
                 autoFocus={true}
                 InputProps={{
                 startAdornment: (
-                    <InputAdornment position="start">
-                    <SearchIcon className={settings.searchSettings.styles.searchIconSVGPath} />
+                    <InputAdornment position="start">    
+                        <SvgIcon>
+                            <path d={keepDefaultIcon ? settings.searchSettings.defaultSearchEngine.iconSVGPath : searchEngine.iconSVGPath} />
+                        </SvgIcon> 
+                        {
+                        searchEngine.name ?
+                                <Chip 
+                                    label={searchEngine.name}
+                                    size="small"  
+                                    className={classes.label}                         
+                                /> 
+                            :
+                                ""
+                            }
                     </InputAdornment>
                 ),
                 }}
