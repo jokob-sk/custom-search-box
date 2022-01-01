@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import settings from './settings.json';
 import { InputAdornment,TextField, makeStyles, SvgIcon, Chip } from '@material-ui/core';
 
-const hideDelay = settings.searchSettings.styles.hideAnimationDelaySeconds + "s";
-const hideDuration = settings.searchSettings.styles.hideAnimationDurationSeconds+ "s";
+const hideDelay = settings.searchSettings.styles.hideAnimationDelaySeconds;
+const hideDuration = settings.searchSettings.styles.hideAnimationDurationSeconds;
 const minWidth = settings.searchSettings.styles.minScreenWidthToEnableHide;
 const animationStart = settings.searchSettings.styles.opacityAtAnimationStart;
 const animationEnd = settings.searchSettings.styles.opacityAtAnimationEnd;
-const textColor = settings.searchSettings.styles.textColor;
 const backgroundColor = settings.searchSettings.styles.backgroundColor;
 const labelBackgroundColor = settings.searchSettings.styles.labelBackgroundColor;
 const keepDefaultIcon = settings.searchSettings.keepDefaultIcon;
-
-// let searchEngineOverriden = false;
 
 function CustomSearch() {
     const [searchEngineOverriden, setSearchEngineOverriden] = useState(false);
@@ -20,50 +17,32 @@ function CustomSearch() {
     const [searchQuery, setSearchQuery] = useState("");   
     const [searchEngine, setSearchEngine] = useState(settings.searchSettings.defaultSearchEngine);
     
-    const useStyles = makeStyles({
-        root: {
-          "& .MuiPaper-root": {
-            maxWidth: "100px",
-            width:"100px",
-          },
-          "& .MuiGrid-item": {
-            width: "inherit",
-          },
-          backgroundColor: backgroundColor,
-          color: textColor+"!important",
-          alignContent: "center center",
-        },
+    const useStyles = makeStyles({       
         label:{
             backgroundColor:labelBackgroundColor,
         },
-        search: {   
-          padding: "4px",
+        search: {             
           backgroundColor: backgroundColor,              
           opacity:animationStart,
           ['@media (min-width:'+minWidth+')']: 
             {
-              transitionDelay: hideDelay,          
-              width: "40%",
-              position: "absolute", 
-              padding: "40px",
+              transitionDelay: hideDelay + "s",                        
               opacity: animationStart,
-              left: "50%",
-              top: "50%",
-              transform: "translate(-50%, -50%)",
-              animation: "$loadAnimation "+hideDuration+" ease-in "+hideDelay+"",
+              
+              animation: "$loadAnimation "+hideDuration+"s ease-in "+hideDelay+"s",
               animationFillMode: "forwards"
             },
           '&:hover': {
             ['@media (min-width:'+minWidth+')']: {
-                animation: "$hoverAnimation "+hideDuration+" ease-in "+hideDelay+"",
+                animation: "$hoverAnimation "+hideDuration+"s ease-in "+hideDelay+"s",
                 animationFillMode: "forwards"
             },    
           },    
         },
         "@keyframes loadAnimation": {        
             "to": showSearchBox ? {
-                transitionDelay: hideDelay, 
-                transition: "opacity 2s",
+                transitionDelay: hideDelay+"s", 
+                transition: "opacity "+hideDuration+"s",
                 opacity: animationStart 
             } :
             {
@@ -105,8 +84,7 @@ function CustomSearch() {
                     return null;
                 }              
             )         
-        }
-        
+        }        
     }   
 
     function handleOnKeyUp (event) {
