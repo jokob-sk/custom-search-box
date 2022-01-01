@@ -2,7 +2,8 @@
 
 A search box mimicking browser search bars.
 
-Get them here: https://materialdesignicons.com/
+![Google override][screen1]
+
 
 The names of each attribute should be fairly self-explanatory.
 
@@ -73,3 +74,7 @@ All settings can be found in `settings.json`.
 ## Support :coffee:
 
 <a href="https://www.buymeacoffee.com/jokobsk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 117px !important;" ></a>
+
+
+<!--- --------------------------------------------------------------------- --->
+[screen1]:    ./docs/img/search_google.png           "Google override"
