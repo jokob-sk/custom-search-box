@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import settings from './settings.json';
 import { InputAdornment,TextField, makeStyles, SvgIcon, Chip } from '@material-ui/core';
 
-
 const hideDelay = settings.searchSettings.styles.hideAnimationDelaySeconds + "s";
 const hideDuration = settings.searchSettings.styles.hideAnimationDurationSeconds+ "s";
 const minWidth = settings.searchSettings.styles.minScreenWidthToEnableHide;
@@ -13,10 +12,11 @@ const backgroundColor = settings.searchSettings.styles.backgroundColor;
 const labelBackgroundColor = settings.searchSettings.styles.labelBackgroundColor;
 const keepDefaultIcon = settings.searchSettings.keepDefaultIcon;
 
-let searchEngineOverriden = false;
-let showSearchBox = false;
+// let searchEngineOverriden = false;
 
 function CustomSearch() {
+    const [searchEngineOverriden, setSearchEngineOverriden] = useState(false);
+    const [showSearchBox, setShowSearchBox] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");   
     const [searchEngine, setSearchEngine] = useState(settings.searchSettings.defaultSearchEngine);
     
@@ -90,31 +90,44 @@ function CustomSearch() {
 
         const textInput = event.target.value;
 
-        // keep the search box shown if once you override the default search engine, otherwise hide it if search queery is deleted
-        showSearchBox = searchEngineOverriden ? true : textInput.length > 0;
-
-        setSearchQuery(textInput)
+        setShowSearchBox(searchEngineOverriden || textInput.length > 0) 
 
         // detecting custom search engine override       
         if(textInput.length > 1 && textInput[1] === ' ')
         {
             settings.searchSettings.searchEngines.map(function(engine){              
                     if(engine.key === textInput[0].toLowerCase() )
-                    {
-                        searchEngineOverriden = true;
+                    {                        
                         event.target.value = textInput.slice(2);
                         setSearchEngine(engine); 
-                        console.log(searchEngine.iconSVGPath)
+                        setSearchEngineOverriden(true);
                     }                
                     return null;
                 }              
             )         
         }
+        
     }   
 
-    function handleOnKeyDown (event) {
-        // detect backspace on empty search query
-        
+    function handleOnKeyUp (event) {
+
+        const textInput = event.target.value;
+
+        setSearchQuery(textInput)
+    }
+
+    function handleOnKeyDown(event)
+    {        
+        if(event.key === "Backspace" && searchEngineOverriden && event.target.value === "")
+        {
+            handleLabelDelete();
+        }
+    }
+
+    function handleLabelDelete () {
+        setSearchEngineOverriden(false);        
+        setSearchEngine(settings.searchSettings.defaultSearchEngine);
+        setShowSearchBox(searchQuery.length > 1) 
     }
     
     function handleKeyPress (event) {        
@@ -127,7 +140,7 @@ function CustomSearch() {
             {                
                 document.location.href = searchEngine.url + searchQuery;
             }
-        }
+        } 
     }
         
 
@@ -138,6 +151,7 @@ function CustomSearch() {
                 placeholder="Search"
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
+                onKeyUp={handleOnKeyUp}
                 onKeyDown={handleOnKeyDown}
                 autoFocus={true}
                 InputProps={{
@@ -151,6 +165,7 @@ function CustomSearch() {
                                 <Chip 
                                     label={searchEngine.name}
                                     size="small"  
+                                    onDelete={handleLabelDelete}
                                     className={classes.label}                         
                                 /> 
                             :
