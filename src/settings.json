@@ -46,8 +46,8 @@
             }
         ],
         "styles":{
-            "backgroundColor":"#c1c1c1",    
-            "labelBackgroundColor":"#a29e9e",        
+            "backgroundColor":"#c1c1c1", 
+            "labelBackgroundColor":"pink",
             "minScreenWidthToEnableHide":"780px",
             "hideAnimationDelaySeconds":"3",
             "hideAnimationDurationSeconds":"2",
@@ -55,5 +55,14 @@
             "opacityAtAnimationEnd":"0.2",
             "textColor":"#000"
         }
+    },
+    "labelStyles" : 
+    {
+      "color":"yellow"
+    },
+    "searchStyles":
+    {
+      "borderRadius": "10px",
+      "padding": "20px"
     }
 }

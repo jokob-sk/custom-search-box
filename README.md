@@ -4,10 +4,7 @@ A search box mimicking browser search bars.
 
 ![Google override][screen1]
 
-
-The names of each attribute should be fairly self-explanatory.
-
-If you want to override the search engine specified in the settings.json file use the following characters + a space:
+If you want to override the search engine specified in the 'settings.json' file use the following characters and a space ' ' (all bellow can be modified):
 
     'e' for https://www.ecosia.org/
     'd' for https://www.duckduckgo.com/
@@ -15,7 +12,7 @@ If you want to override the search engine specified in the settings.json file us
     'b' for https://www.bing.com/
     'm' for https://www.google.com/maps/
 
-So for example if you want to use duckduckgo.com to search for the term 'mount bookmark' type d mount bookmark
+So for example if you want to use duckduckgo.com to search for the term 'mount bookmark' type 'd mount bookmark'
 
 You can modify these in the settings.json file.
 
