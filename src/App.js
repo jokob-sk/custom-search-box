@@ -26,17 +26,15 @@ function App() {
       <header className="App-header">
         <CustomSearch 
           labelStyles = {settings.labelStyles}
-          searchStyles = {settings.searchStyles}
-          backgroundColor = {settings.searchSettings.styles.backgroundColor} 
+          searchStyles = {settings.searchStyles}          
           defaultSearchEngine = {settings.searchSettings.defaultSearchEngine}
           keepDefaultIcon = {settings.searchSettings.keepDefaultIcon}
-          labelBackgroundColor = {settings.searchSettings.styles.labelBackgroundColor}
-          backgroundColor = {settings.searchSettings.styles.backgroundColor}
           animationEnd = {settings.searchSettings.styles.opacityAtAnimationEnd}
           animationStart = {settings.searchSettings.styles.opacityAtAnimationStart}
           minWidth = {settings.searchSettings.styles.minScreenWidthToEnableHide}
           hideDuration = {settings.searchSettings.styles.hideAnimationDurationSeconds}
-          hideDelay = {settings.searchSettings.styles.hideAnimationDelaySeconds}          
+          hideDelay = {settings.searchSettings.styles.hideAnimationDelaySeconds} 
+          bookmarks = {settings.bookmarks}         
           />        
       </header>
     </div>

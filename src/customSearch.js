@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { InputAdornment, TextField, makeStyles, SvgIcon, Chip } from '@material-ui/core';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 function CustomSearch(props) {
     const [searchEngineOverriden, setSearchEngineOverriden] = useState(false);
@@ -7,23 +8,19 @@ function CustomSearch(props) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchEngine, setSearchEngine] = useState(props.defaultSearchEngine);
 
-
-
     const useStylesLabel = makeStyles({
       label: {
-          backgroundColor: props.labelBackgroundColor,          
+        opacity: 1,          
       }
     })
 
     const useStylesSearch = makeStyles({
         search: {
-            backgroundColor: props.backgroundColor,
             opacity: props.animationStart,
             ['@media (min-width:' + props.minWidth + ')']:
             {
                 transitionDelay: props.hideDelay + "s",
                 opacity: props.animationStart,
-
                 animation: "$loadAnimation " + props.hideDuration + "s ease-in " + props.hideDelay + "s",
                 animationFillMode: "forwards"
             },
@@ -78,6 +75,13 @@ function CustomSearch(props) {
                 return null;
             })
         }
+        
+        // if search engine not overriden list bookmarksmatching the search results
+        if(!searchEngineOverriden)
+        {
+
+        }
+
     }
 
     function handleOnKeyUp(event) {
@@ -146,6 +150,15 @@ function CustomSearch(props) {
                     ),
                 }}
             />
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              value={{name:searchQuery}}
+              options={props.bookmarks}
+              getOptionLabel={(bookmark) => bookmark.name}
+              sx={{ width: 500 }}
+              renderInput={(params) => <TextField {...params} label="Bookmarks" />}
+            />
 
         </React.Fragment>
     )
@@ -162,8 +175,6 @@ CustomSearch.defaultProps = {
     minWidth: "780px",
     animationStart: "0.8",
     animationEnd: "0.3",
-    backgroundColor: "#c1c1c1",
-    labelBackgroundColor: "#a29e9e",
     keepDefaultIcon: true,
     defaultSearchEngine: {
         "key": "",
@@ -209,13 +220,21 @@ CustomSearch.defaultProps = {
             "iconSVGPath": "M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.5,18.78 17.18,18.84C15.88,18.91 14.69,18.94 13.59,18.94L12,19C7.81,19 5.2,18.84 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.31,16.36 2.22,15.73 2.16,14.93C2.09,14.13 2.06,13.44 2.06,12.84L2,12C2,9.81 2.16,8.2 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C4.64,5.31 5.5,5.22 6.82,5.16C8.12,5.09 9.31,5.06 10.41,5.06L12,5C16.19,5 18.8,5.16 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z"
         }
     ],
+    bookmarks:[
+      {        
+        "name":"YouTube",
+        "url":"https://www.youtube.com/",
+        "iconSVGPath":"M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.5,18.78 17.18,18.84C15.88,18.91 14.69,18.94 13.59,18.94L12,19C7.81,19 5.2,18.84 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.31,16.36 2.22,15.73 2.16,14.93C2.09,14.13 2.06,13.44 2.06,12.84L2,12C2,9.81 2.16,8.2 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C4.64,5.31 5.5,5.22 6.82,5.16C8.12,5.09 9.31,5.06 10.41,5.06L12,5C16.19,5 18.8,5.16 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z"
+      }
+    ],
     labelStyles:
     {
-      color:"black"
+      color:"black",      
+      backgroundColor: "grey",
     },
     searchStyles:
-    {
-      borderRadius: "10px",
-      padding: "20px"
+    {     
+      padding: "20px",
+      backgroundColor: "#e1d6d6"
     }
 }
