@@ -3,123 +3,196 @@ import { InputAdornment, TextField, makeStyles, SvgIcon, Chip } from '@material-
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 function CustomSearch(props) {
-    const [searchEngineOverriden, setSearchEngineOverriden] = useState(false);
-    const [showSearchBox, setShowSearchBox] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchEngine, setSearchEngine] = useState(props.defaultSearchEngine);
 
-    const useStylesLabel = makeStyles({
-      label: {
-        opacity: 1,          
+  // Part of React magic START
+  var inputRef = null;
+  // Part of React magic END
+
+  const [searchEngineOverriden, setSearchEngineOverriden] = useState(false);
+  const [showSearchBox, setShowSearchBox] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchEngine, setSearchEngine] = useState(props.defaultSearchEngine);
+
+  const useStylesLabel = makeStyles({
+    label: {
+      opacity: 1,          
+    }
+  })
+
+  const useStylesSearch = makeStyles({
+      search: {
+          opacity: props.animationStart,
+          ['@media (min-width:' + props.minWidth + ')']:
+          {
+              transitionDelay: props.hideDelay + "s",
+              opacity: props.animationStart,
+              animation: "$loadAnimation " + props.hideDuration + "s ease-in " + props.hideDelay + "s",
+              animationFillMode: "forwards"
+          },
+          '&:hover': {
+              ['@media (min-width:' + props.minWidth + ')']: {
+                  animation: "$hoverAnimation " + props.hideDuration + "s ease-in " + props.hideDelay + "s",
+                  animationFillMode: "forwards"
+              },
+          },
+      },
+      "@keyframes loadAnimation": {
+          "to": showSearchBox ? {
+              transitionDelay: props.hideDelay + "s",
+              transition: "opacity " + props.hideDuration + "s",
+              opacity: props.animationStart
+          } :
+              {
+                  opacity: props.animationEnd
+              }
+      },
+      "@keyframes hoverAnimation": {
+          "to": {
+              opacity: props.animationStart
+          }
+      },
+      "@keyframes typingAnimation": {
+          "to": {
+              opacity: props.animationStart
+          }
       }
-    })
+  });
 
-    const useStylesSearch = makeStyles({
-        search: {
-            opacity: props.animationStart,
-            ['@media (min-width:' + props.minWidth + ')']:
-            {
-                transitionDelay: props.hideDelay + "s",
-                opacity: props.animationStart,
-                animation: "$loadAnimation " + props.hideDuration + "s ease-in " + props.hideDelay + "s",
-                animationFillMode: "forwards"
-            },
-            '&:hover': {
-                ['@media (min-width:' + props.minWidth + ')']: {
-                    animation: "$hoverAnimation " + props.hideDuration + "s ease-in " + props.hideDelay + "s",
-                    animationFillMode: "forwards"
-                },
-            },
-        },
-        "@keyframes loadAnimation": {
-            "to": showSearchBox ? {
-                transitionDelay: props.hideDelay + "s",
-                transition: "opacity " + props.hideDuration + "s",
-                opacity: props.animationStart
-            } :
-                {
-                    opacity: props.animationEnd
-                }
-        },
-        "@keyframes hoverAnimation": {
-            "to": {
-                opacity: props.animationStart
-            }
-        },
-        "@keyframes typingAnimation": {
-            "to": {
-                opacity: props.animationStart
-            }
-        }
-    });
+  // generate CSS
+  const classesLabel = useStylesLabel();    
+  const classesSearch = useStylesSearch();
 
-    // generate CSS
-    const classesLabel = useStylesLabel();    
-    const classesSearch = useStylesSearch();
+  // capture search input and handle search engine override
+  function handleChange(event) {
 
-    // capture search input and handle search engine override
-    function handleChange(event) {
+      const textInput = event.target.value;
 
-        const textInput = event.target.value;
+      console.log(event.target.value)
 
-        setShowSearchBox(searchEngineOverriden || textInput.length > 0)
+      setShowSearchBox(searchEngineOverriden || textInput.length > 0)
 
-        // detecting custom search engine override       
-        if (textInput.length > 1 && textInput[1] === ' ') {
-            props.searchEngines.map(function (engine) {
-                if (engine.key === textInput[0].toLowerCase()) {
-                    event.target.value = textInput.slice(2);
-                    setSearchEngine(engine);
-                    setSearchEngineOverriden(true);
-                }
-                return null;
-            })
-        }
-        
-        // if search engine not overriden list bookmarksmatching the search results
-        if(!searchEngineOverriden)
-        {
+      // detecting and removing custom search engine override      
+      detectOverride(event); 
+      
+  }
 
-        }
-
+  function detectOverride(event)
+  {
+    const textInput = event.target.value;
+    
+    if (textInput.length > 1 && textInput[1] === ' ') {
+      props.searchEngines.map(function (engine) {
+          if (engine.key === textInput[0].toLowerCase()) {
+              // React magic START - Based on: https://codesandbox.io/embed/material-demo2-1hvzq?fontsize=14&hidenavigation=1&theme=dark
+              var input = inputRef.querySelector("input");
+              console.log(input);
+              var nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                "value"
+              ).set;
+              // replace input value (remove 2 start characters)
+              nativeInputValueSetter.call(input, textInput.slice(2));
+              var inputEvent = new Event("input", { bubbles: true });
+              input.dispatchEvent(inputEvent);
+              // React magic END 
+              setSearchEngine(engine);
+              setSearchEngineOverriden(true);
+          }
+          return null;
+      })
     }
+  }
+  
+  function handleOnKeyUp(event) {
 
-    function handleOnKeyUp(event) {
+      const textInput = event.target.value;
 
-        const textInput = event.target.value;
+      setSearchQuery(textInput)
+  }
 
-        setSearchQuery(textInput)
-    }
+  function handleOnKeyDown(event) {
+      if (event.key === "Backspace" && searchEngineOverriden && event.target.value === "") {
+          handleLabelDelete();
+      }
+  }
 
-    function handleOnKeyDown(event) {
-        if (event.key === "Backspace" && searchEngineOverriden && event.target.value === "") {
-            handleLabelDelete();
-        }
-    }
+  function handleLabelDelete() {
+      setSearchEngineOverriden(false);
+      setSearchEngine(props.defaultSearchEngine);
+      setShowSearchBox(searchQuery.length > 1)
+  }
 
-    function handleLabelDelete() {
-        setSearchEngineOverriden(false);
-        setSearchEngine(props.defaultSearchEngine);
-        setShowSearchBox(searchQuery.length > 1)
-    }
-
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            // execute search           
-            if (searchQuery.startsWith('http://') || searchQuery.startsWith('https://')) // searchquery is full URL so just redirect (a full URL with http/https))
-            {
-                document.location.href = searchQuery;
-            } else if (searchEngine) // search engine
-            {
-                document.location.href = searchEngine.url + searchQuery;
-            }
-        }
-    }
+  function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+          // execute search           
+          if (searchQuery.startsWith('http://') || searchQuery.startsWith('https://')) // searchquery is full URL so just redirect (a full URL with http/https))
+          {
+              document.location.href = searchQuery;
+          } else if (searchEngine) // search engine
+          {
+              document.location.href = searchEngine.url + searchQuery;
+          }
+      }
+  }
 
 
-    return (
-        <React.Fragment>
-            <TextField
+  // a bookmark selected
+  function handleAutocompleteChange(event, value) {      
+    document.location.href = value.url;
+  }
+
+  return (
+      <React.Fragment>
+          {/* <TextField
+              className={classesSearch.search}
+              style={props.searchStyles}
+              placeholder="Search"
+              onChange={handleChange}
+              onKeyPress={handleKeyPress}
+              onKeyUp={handleOnKeyUp}
+              onKeyDown={handleOnKeyDown}
+              autoFocus={true}
+              InputProps={{
+                  startAdornment: (
+                      <InputAdornment position="start">
+                          <SvgIcon>
+                              <path d={props.keepDefaultIcon ? props.defaultSearchEngine.iconSVGPath : searchEngine.iconSVGPath} />
+                          </SvgIcon>
+                          {
+                              searchEngine.name ?
+                                  <Chip
+                                      label={searchEngine.name}
+                                      size="small"
+                                      onDelete={handleLabelDelete}
+                                      className={classesLabel.label}
+                                      style = {props.labelStyles}
+                                  />
+                                  :
+                                  ""
+                          }
+                      </InputAdornment>
+                  ),
+              }}
+          /> */}
+          <Autocomplete
+            disablePortal
+            disableClearable
+            autoHighlight 
+            id="combo-box-demo"
+            freeSolo = {true}
+            open={!searchEngineOverriden && searchQuery.length > 2 }
+            options={props.bookmarks}
+            getOptionLabel={(bookmark) => bookmark.name}
+            sx={{ width: 500 }}
+            onChange={handleAutocompleteChange}
+            // Part of React magic START
+            ref={input => {
+              inputRef = input;
+            }}
+            // Part of React magic END
+            renderInput={(params) => 
+              <TextField 
+                {...params}
                 className={classesSearch.search}
                 style={props.searchStyles}
                 placeholder="Search"
@@ -128,7 +201,9 @@ function CustomSearch(props) {
                 onKeyUp={handleOnKeyUp}
                 onKeyDown={handleOnKeyDown}
                 autoFocus={true}
+                
                 InputProps={{
+                    ...params.InputProps,
                     startAdornment: (
                         <InputAdornment position="start">
                             <SvgIcon>
@@ -148,20 +223,11 @@ function CustomSearch(props) {
                             }
                         </InputAdornment>
                     ),
-                }}
-            />
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              value={{name:searchQuery}}
-              options={props.bookmarks}
-              getOptionLabel={(bookmark) => bookmark.name}
-              sx={{ width: 500 }}
-              renderInput={(params) => <TextField {...params} label="Bookmarks" />}
-            />
-
-        </React.Fragment>
-    )
+                }} 
+              />}
+          />
+      </React.Fragment>
+  )
 
 }
 

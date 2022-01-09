@@ -1,24 +1,11 @@
 import './App.css';
 import CustomSearch from './customSearch'
 import settings from './settings.json';
-import { makeStyles} from '@material-ui/core';
+
 
 
 
 function App() {
-
-  const useStyles = makeStyles({
-    label: {
-        border: "green 3px solid",
-    },
-    search: {
-        backgroundColor: "blue",     
-    }
-  });
-  
-  // generate CSS
-  const classes = useStyles();
-
 
 
   return (
@@ -34,7 +21,8 @@ function App() {
           minWidth = {settings.searchSettings.styles.minScreenWidthToEnableHide}
           hideDuration = {settings.searchSettings.styles.hideAnimationDurationSeconds}
           hideDelay = {settings.searchSettings.styles.hideAnimationDelaySeconds} 
-          bookmarks = {settings.bookmarks}         
+          bookmarks = {settings.bookmarks}     
+          searchEngines = {settings.searchSettings.searchEngines}
           />        
       </header>
     </div>
